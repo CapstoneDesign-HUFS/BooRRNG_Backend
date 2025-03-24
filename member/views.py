@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status, permissions
+from rest_framework_simplejwt.tokens import OutstandingToken, BlacklistedToken
 from .serializers import SignupSerializer, LoginSerializer
 
 class SignupView(APIView):
@@ -9,6 +9,7 @@ class SignupView(APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            from rest_framework_simplejwt.tokens import RefreshToken
             refresh = RefreshToken.for_user(user)
             return Response({
                 'access': str(refresh.access_token),
@@ -30,6 +31,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
+            from rest_framework_simplejwt.tokens import RefreshToken
             refresh = RefreshToken.for_user(user)
             return Response({
                 'access': str(refresh.access_token),
@@ -41,3 +43,17 @@ class LoginView(APIView):
                 }
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            tokens = OutstandingToken.objects.filter(user=request.user)
+            for token in tokens:
+                BlacklistedToken.objects.get_or_create(token=token)
+            return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": "Logout failed. Please make sure your access token is valid."
+            }, status=status.HTTP_400_BAD_REQUEST)
