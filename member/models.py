@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from datetime import date
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -22,6 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     birthdate = models.DateField()
     gender = models.IntegerField()  # 1: male, 2: female
     agreed_terms = models.BooleanField(default=False)
+    selected_speed = models.FloatField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -32,3 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def calculate_age(self):
+        today = date.today()
+        return today.year - self.birthdate.year - ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))

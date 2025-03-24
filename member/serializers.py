@@ -33,3 +33,14 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("이메일 또는 비밀번호가 올바르지 않습니다.")
         data['user'] = user
         return data
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'nickname', 'birthdate', 'gender', 'age', 'agreed_terms', 'selected_speed')
+
+    def get_age(self, obj):
+        return obj.calculate_age()
+
