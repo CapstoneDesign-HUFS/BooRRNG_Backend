@@ -44,3 +44,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
     def get_age(self, obj):
         return obj.calculate_age()
 
+class UserEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('nickname', 'birthdate', 'gender', 'selected_speed')

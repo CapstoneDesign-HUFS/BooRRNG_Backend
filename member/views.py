@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import OutstandingToken, BlacklistedToken
-from .serializers import SignupSerializer, LoginSerializer, UserInfoSerializer
+from .serializers import SignupSerializer, LoginSerializer, UserInfoSerializer, UserEditSerializer
 
 class SignupView(APIView):
     def post(self, request):
@@ -62,3 +62,14 @@ class UserInfoView(APIView):
     def get(self, request):
         serializer = UserInfoSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserEditView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        serializer = UserEditSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            response_serializer = UserInfoSerializer(request.user)
+            return Response(response_serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
