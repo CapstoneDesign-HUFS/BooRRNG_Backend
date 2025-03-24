@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User
+from django.contrib.auth import authenticate
 
 class SignupSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
@@ -19,3 +20,16 @@ class SignupSerializer(serializers.ModelSerializer):
         validated_data['password'] = validated_data.pop('password1')
         validated_data.pop('password2')
         return User.objects.create_user(**validated_data)
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+        user = authenticate(email=email, password=password)
+        if user is None:
+            raise serializers.ValidationError("이메일 또는 비밀번호가 올바르지 않습니다.")
+        data['user'] = user
+        return data
