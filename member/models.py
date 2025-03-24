@@ -38,3 +38,33 @@ class User(AbstractBaseUser, PermissionsMixin):
     def calculate_age(self):
         today = date.today()
         return today.year - self.birthdate.year - ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))
+
+# SpeedRecommendation 모델
+class SpeedRecommendation(models.Model):
+    AGE_CHOICES = [
+        (0, '10대 이하'),
+        (10, '10대'),
+        (20, '20대'),
+        (30, '30대'),
+        (40, '40대'),
+        (50, '50대'),
+        (60, '60대 이상'),
+    ]
+
+    GENDER_CHOICES = [
+        (1, '남성'),
+        (2, '여성'),
+    ]
+
+    age_group = models.IntegerField(choices=AGE_CHOICES)
+    gender = models.IntegerField(choices=GENDER_CHOICES)
+    slow = models.FloatField()
+    normal = models.FloatField()
+    fast = models.FloatField()
+
+    class Meta:
+        unique_together = ('age_group', 'gender')
+
+    def __str__(self):
+        return f'{self.age_group}대 - {"남성" if self.gender == 1 else "여성"}'
+
