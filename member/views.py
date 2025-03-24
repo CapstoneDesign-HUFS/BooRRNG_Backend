@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import OutstandingToken, BlacklistedToken
 from .serializers import SignupSerializer, LoginSerializer, UserInfoSerializer, UserEditSerializer
+from .models import SpeedRecommendation
 
 class SignupView(APIView):
     def post(self, request):
@@ -73,3 +74,38 @@ class UserEditView(APIView):
             response_serializer = UserInfoSerializer(request.user)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VelocityRecommendationView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        age = user.calculate_age()
+
+        # 나이 → age_group 매핑
+        if age < 10:
+            age_group = 0
+        elif age < 20:
+            age_group = 10
+        elif age < 30:
+            age_group = 20
+        elif age < 40:
+            age_group = 30
+        elif age < 50:
+            age_group = 40
+        elif age < 60:
+            age_group = 50
+        else:
+            age_group = 60
+
+        try:
+            recommendation = SpeedRecommendation.objects.get(age_group=age_group, gender=user.gender)
+            return Response({
+                "recommendations": {
+                    "slow": recommendation.slow,
+                    "normal": recommendation.normal,
+                    "fast": recommendation.fast,
+                }
+            }, status=status.HTTP_200_OK)
+        except SpeedRecommendation.DoesNotExist:
+            return Response({"error": "Speed recommendation not found."}, status=status.HTTP_404_NOT_FOUND)
