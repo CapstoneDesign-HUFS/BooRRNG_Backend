@@ -14,6 +14,8 @@ from pathlib import Path
 from decouple import config
 from datetime import timedelta
 
+TMAP_API_KEY = config('TMAP_API_KEY')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,7 +30,8 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['woodzverse.pythonanywhere.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = []
+
 
 # Application definition
 
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist', 
     'member',
+    'map',
 ]
 
 MIDDLEWARE = [
