@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .services.tmap import get_pedestrian_route
 from .services.traffic_light import fetch_traffic_lights, convert_tm_to_wgs84, is_within_radius
-
+from .services.v2x import get_signal_phase
 class TmapRouteView(APIView):
     def get(self, request):
         startX = request.query_params.get("startX")
@@ -55,3 +55,12 @@ class TrafficLightView(APIView):
                 continue
 
         return Response({"total": len(result), "lights": result}, status=status.HTTP_200_OK)
+
+class SignalPhaseView(APIView):
+    def get(self, request):
+        intersection_id = request.query_params.get("id")
+        if not intersection_id:
+            return Response({"error": "intersectionId를 입력해주세요"}, status=400)
+        
+        data = get_signal_phase(intersection_id)
+        return Response(data, status=200)
