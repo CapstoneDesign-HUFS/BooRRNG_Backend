@@ -4,6 +4,8 @@ from rest_framework import status
 from .services.tmap import get_pedestrian_route
 from .services.traffic_light import fetch_traffic_lights, convert_tm_to_wgs84, is_within_radius
 from .services.v2x import get_signal_phase
+from .services.pole import get_nearby_poles
+
 class TmapRouteView(APIView):
     def get(self, request):
         startX = request.query_params.get("startX")
@@ -64,3 +66,15 @@ class SignalPhaseView(APIView):
         
         data = get_signal_phase(intersection_id)
         return Response(data, status=200)
+    
+class PoleView(APIView):
+    def get(self, request):
+        try:
+            lat = float(request.query_params.get("lat"))
+            lon = float(request.query_params.get("lon"))
+            radius = float(request.query_params.get("radius", 100))
+        except (TypeError, ValueError):
+            return Response({"error": "lat, lon을 float 형식으로 전달해주세요."}, status=400)
+
+        poles = get_nearby_poles(lat, lon, radius)
+        return Response({"total": len(poles), "poles": poles}, status=200)
