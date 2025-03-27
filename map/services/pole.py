@@ -6,7 +6,7 @@ from pyproj import Transformer
 # TM -> WGS84 변환기 초기화
 transformer = Transformer.from_crs("EPSG:5186", "EPSG:4326", always_xy=True)
 
-# CSV 파일 경로 (루트 기준)
+# CSV 파일
 CSV_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'A057_L.csv')
 
 def convert_tm_to_wgs84(x, y):

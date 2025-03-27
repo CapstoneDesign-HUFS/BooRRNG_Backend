@@ -5,6 +5,9 @@ from .services.tmap import get_pedestrian_route
 from .services.traffic_light import fetch_traffic_lights, convert_tm_to_wgs84, is_within_radius
 from .services.v2x import get_signal_phase
 from .services.pole import get_nearby_poles
+from .services.route import calculate_recommended_route
+from .serializers import RouteRequestSerializer
+
 
 class TmapRouteView(APIView):
     def get(self, request):
@@ -78,3 +81,13 @@ class PoleView(APIView):
 
         poles = get_nearby_poles(lat, lon, radius)
         return Response({"total": len(poles), "poles": poles}, status=200)
+
+class RouteRecommendationView(APIView):
+    def post(self, request):
+        serializer = RouteRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            start = serializer.validated_data['start']
+            end = serializer.validated_data['end']
+            result = calculate_recommended_route(start, end)
+            return Response(result, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
