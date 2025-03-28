@@ -39,7 +39,10 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'nickname', 'birthdate', 'gender', 'age', 'agreed_terms', 'selected_speed')
+        fields = (
+            'id', 'email', 'nickname', 'birthdate', 'gender',
+            'age', 'agreed_terms', 'min_speed', 'max_speed'
+        )
 
     def get_age(self, obj):
         return obj.calculate_age()
@@ -47,4 +50,4 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class UserEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('nickname', 'birthdate', 'gender', 'selected_speed')
+        fields = ('nickname', 'birthdate', 'gender', 'min_speed', 'max_speed')

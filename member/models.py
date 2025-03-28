@@ -23,7 +23,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     birthdate = models.DateField()
     gender = models.IntegerField()  # 1: male, 2: female
     agreed_terms = models.BooleanField(default=False)
-    selected_speed = models.FloatField(null=True, blank=True)
+    min_speed = models.FloatField(null=True, blank=True)
+    max_speed = models.FloatField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
