@@ -11,7 +11,7 @@ def convert_tm_to_wgs84(x, y):
     return lon, lat
 
 def is_within_radius(lat1, lon1, lat2, lon2, radius_m=100):
-    R = 6371000  # Earth radius in meters
+    R = 6371000  
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
     a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2

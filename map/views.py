@@ -88,6 +88,11 @@ class RouteRecommendationView(APIView):
         if serializer.is_valid():
             start = serializer.validated_data['start']
             end = serializer.validated_data['end']
-            result = calculate_recommended_route(start, end)
+
+            print("start:", start)  
+            print("end:", end)
+
+            result = calculate_recommended_route(start=start, end=end)
             return Response(result, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

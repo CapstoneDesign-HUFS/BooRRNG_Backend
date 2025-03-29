@@ -20,8 +20,8 @@ def get_pedestrian_route(startX, startY, endX, endY):
 
     response = requests.post(url, headers=headers, json=body)
 
-    print("📍 Tmap 요청 결과 코드:", response.status_code)
-    print("📍 Tmap 응답 내용:", response.text)
+    print("Tmap 요청 결과 코드:", response.status_code)
+    print("map 응답 내용:", response.text)
 
     if response.status_code == 200:
         return response.json()

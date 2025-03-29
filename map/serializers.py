@@ -7,3 +7,4 @@ class CoordinateSerializer(serializers.Serializer):
 class RouteRequestSerializer(serializers.Serializer):
     start = CoordinateSerializer()
     end = CoordinateSerializer()
+
