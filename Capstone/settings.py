@@ -1,3 +1,4 @@
+# Capstone/Capstone/settings.py
 """
 Django settings for Capstone project.
 
