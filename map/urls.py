@@ -1,10 +1,9 @@
 from django.urls import path
-from .views import TmapRouteView, TrafficLightView, SignalPhaseView, PoleView, RouteRecommendationView
+from . import views
 
 urlpatterns = [
-    path('route/', RouteRecommendationView.as_view(), name='route-recommendation'),
-    path('route/', TmapRouteView.as_view(), name='tmap-route'),
-    path('traffic-lights/', TrafficLightView.as_view(), name='traffic-lights'),
-    path("signal-phase/", SignalPhaseView.as_view(), name="signal-phase"),
-     path("poles/", PoleView.as_view(), name="poles"),
+    path('poles/all/', views.all_signal_poles),
+    path('poles/nearby/', views.nearby_signal_poles),
+    path('poles/nearest/', views.nearest_signal_status),
+    path('v2x-test/', views.test_v2x_api),
 ]
