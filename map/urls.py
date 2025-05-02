@@ -1,9 +1,8 @@
 from django.urls import path
-from . import views
+from .views import AllTrafficLightsView, NearbyTrafficLightsView, V2XSignalTestView
 
 urlpatterns = [
-    path('poles/all/', views.all_signal_poles),
-    path('poles/nearby/', views.nearby_signal_poles),
-    path('poles/nearest/', views.nearest_signal_status),
-    path('v2x-test/', views.test_v2x_api),
+    path('traffic-lights/all/', AllTrafficLightsView.as_view(), name='all-traffic-lights'),
+    path('traffic-lights/nearby/', NearbyTrafficLightsView.as_view(), name='nearby-traffic-lights'),
+    path('traffic-lights/v2x-test/', V2XSignalTestView.as_view()), 
 ]
