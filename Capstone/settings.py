@@ -16,6 +16,7 @@ from decouple import config
 from datetime import timedelta
 
 V2X_API_KEY = config ("V2X_API_KEY")
+TMAP_API_KEY = config ("TMAP_API_KEY")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
