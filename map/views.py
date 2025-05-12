@@ -128,7 +128,7 @@ class SegmentedRouteView(APIView):
             return Response({"error": "Missing coordinates"}, status=400)
 
         user = request.user
-        speed = user.min_speed or 1.0
+        speed = getattr(user, "min_speed", 1.0) or 1.0
 
         headers = {
             "appKey": settings.TMAP_API_KEY,
@@ -279,27 +279,28 @@ class SignalStatusView(APIView):
         except Exception as e:
             print(f"[WARN] 교차로 이름 조회 실패: {e}")
 
-        # 방향 매핑 및 신호 정보 구성
-        direction_map = {
-            "nt": "북쪽", "et": "동쪽", "st": "남쪽", "wt": "서쪽",
-            "ne": "북동쪽", "nw": "북서쪽", "se": "남동쪽", "sw": "남서쪽"
-        }
+        directions = ["nt", "et", "st", "wt", "ne", "nw", "se", "sw"]
 
         signals = []
-        for key, label in direction_map.items():
+        for key in directions:
             status_key = f"{key}StsgStatNm"
             time_key = f"{key}StsgRmdrCs"
             raw_status = item.get(status_key)
             remaining_raw = item.get(time_key)
 
-            if raw_status and remaining_raw is not None:
+            if raw_status:
                 color = raw_status.split("-")[0].lower().replace("protected", "green").replace("stop", "red")
-                signals.append({
-                    "direction": label,
-                    "signalColor": color,
-                    "remainingSeconds": round(remaining_raw / 10, 1)
-                })
+            else:
+                color = None
+            
+            seconds = round(remaining_raw / 10, 1) if remaining_raw is not None else None
 
+            signals.append({
+                "direction": key,
+                "signalColor": color,
+                "remainingSeconds": seconds
+            })
+        
         result = {
             "intersectionName": intersection_name,
             "timestamp": datetime.fromtimestamp(item["trsmUtcTime"] / 1000, tz=timezone.utc).isoformat(),
