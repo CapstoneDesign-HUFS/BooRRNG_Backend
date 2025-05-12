@@ -1,4 +1,9 @@
+import os
+import pandas as pd
 import requests
+import csv
+from pathlib import Path
+from datetime import datetime, timezone
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -123,7 +128,7 @@ class SegmentedRouteView(APIView):
             return Response({"error": "Missing coordinates"}, status=400)
 
         user = request.user
-        speed = user.min_speed or 1.0
+        speed = getattr(user, "min_speed", 1.0) or 1.0
 
         headers = {
             "appKey": settings.TMAP_API_KEY,
@@ -237,3 +242,69 @@ class TmapSegmentedRouteView(SegmentedRouteView):
                     results.append(route)
 
         return Response({"routes": results})
+    
+class SignalStatusView(APIView):
+    def get(self, request):
+        its_id = request.query_params.get("itsId")
+        if not its_id:
+            return Response({"error": "Missing 'itsId' parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # API 호출
+        url = "https://t-data.seoul.go.kr/apig/apiman-gateway/tapi/v2xSignalPhaseTimingFusionInformation/1.0"
+        headers = {"accept": "application/json"}
+        params = {"apikey": quote(settings.V2X_API_KEY, safe='')}
+
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException as e:
+            return Response({"error": "API 호출 중 오류가 발생했습니다.", "details": str(e)}, status=500)
+
+        # 해당 교차로 데이터 찾기
+        item = next((x for x in data if str(x.get("itstId", "")).strip() == str(its_id)), None)
+        if not item:
+            return Response({"error": "ITS ID에 해당하는 데이터를 찾을 수 없습니다."}, status=404)
+
+        # 교차로 이름 가져오기
+        csv_path = Path(__file__).resolve().parent / "data" / "location.csv"
+        intersection_name = None
+        try:
+            with open(csv_path, encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if row.get("itstId", "").strip() == str(its_id):
+                        intersection_name = row.get("itstNm", "").strip()
+                        break
+        except Exception as e:
+            print(f"[WARN] 교차로 이름 조회 실패: {e}")
+
+        directions = ["nt", "et", "st", "wt", "ne", "nw", "se", "sw"]
+
+        signals = []
+        for key in directions:
+            status_key = f"{key}StsgStatNm"
+            time_key = f"{key}StsgRmdrCs"
+            raw_status = item.get(status_key)
+            remaining_raw = item.get(time_key)
+
+            if raw_status:
+                color = raw_status.split("-")[0].lower().replace("protected", "green").replace("stop", "red")
+            else:
+                color = None
+            
+            seconds = round(remaining_raw / 10, 1) if remaining_raw is not None else None
+
+            signals.append({
+                "direction": key,
+                "signalColor": color,
+                "remainingSeconds": seconds
+            })
+        
+        result = {
+            "intersectionName": intersection_name,
+            "timestamp": datetime.fromtimestamp(item["trsmUtcTime"] / 1000, tz=timezone.utc).isoformat(),
+            "signals": signals
+        }
+
+        return Response(result, status=200)
