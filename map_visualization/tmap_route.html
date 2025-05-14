@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>대안 경로 시각화</title>
+    <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=zac7NVookH1AHyfonrnrn7DERedLyIaC8qUXz621"></script>
+    <style>
+        #map_div {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h3>대안 경로 시각화</h3>
+    <div id="map_div"></div>
+    <script>
+        var map = new Tmapv2.Map("map_div", {
+            center: new Tmapv2.LatLng(37.594453, 127.079074),
+            width: "100%",
+            height: "600px",
+            zoom: 15
+        });
+
+        var routeData = {
+            "routes": [
+                {
+                    "route_type": "recommended",
+                    "segments": [
+                        {
+                            "start": { "lat": 37.594531013087924, "lng": 127.07904162053583 },
+                            "end": { "lat": 37.59475322629914, "lng": 127.07997486251902 },
+                            "traffic_light": { "lat": 37.5950098, "lng": 127.0803091, "name": "동일로지하차도" }
+                        },
+                        {
+                            "start": { "lat": 37.59475322629914, "lng": 127.07997486251902 },
+                            "end": { "lat": 37.595689292527936, "lng": 127.08352173494954 },
+                            "traffic_light": { "lat": 37.5958166, "lng": 127.0834891, "name": "서울중랑우체국" }
+                        },
+                        {
+                            "start": { "lat": 37.595689292527936, "lng": 127.08352173494954 },
+                            "end": { "lat": 37.596319798463604, "lng": 127.08483548619215 },
+                            "traffic_light": null
+                        }
+                    ]
+                }
+            ]
+        };
+
+        function drawRoute(segment, color, isStart, isEnd) {
+            var path = [
+                new Tmapv2.LatLng(segment.start.lat, segment.start.lng),
+                new Tmapv2.LatLng(segment.end.lat, segment.end.lng)
+            ];
+
+            new Tmapv2.Polyline({
+                path: path,
+                strokeColor: color,
+                strokeWeight: 6,
+                map: map
+            });
+
+            if (isStart) {
+                new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(segment.start.lat, segment.start.lng),
+                    icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_b_m_s.png",
+                    map: map
+                });
+                var infoWindow = new Tmapv2.InfoWindow({
+                    position: new Tmapv2.LatLng(segment.start.lat, segment.start.lng),
+                    content: "<div style='padding:5px;'>출발</div>",
+                    type: 2,
+                    map: map
+                });
+            }
+
+            if (isEnd) {
+                new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(segment.end.lat, segment.end.lng),
+                    icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_b_m_e.png",
+                    map: map
+                });
+                var infoWindow = new Tmapv2.InfoWindow({
+                    position: new Tmapv2.LatLng(segment.end.lat, segment.end.lng),
+                    content: "<div style='padding:5px;'>도착</div>",
+                    type: 2,
+                    map: map
+                });
+            }
+
+            if (segment.traffic_light) {
+                new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(segment.traffic_light.lat, segment.traffic_light.lng),
+                    icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_p.png",
+                    map: map
+                });
+            }
+        }
+
+        routeData.routes[0].segments.forEach((segment, index) => {
+            var color = index === 0 ? "#FF0000" : index === 1 ? "#00FF00" : "#0000FF";
+            drawRoute(segment, color, index === 0, index === (routeData.routes[0].segments.length - 1));
+        });
+    </script>
+</body>
+</html>
