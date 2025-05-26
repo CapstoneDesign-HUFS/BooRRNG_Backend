@@ -52,13 +52,13 @@ class V2XSignalTestView(APIView):
 
     def get(self, request):
         base_url = "https://t-data.seoul.go.kr/apig/apiman-gateway/tapi/v2xSignalPhaseTimingInformation/1.0"
-        encoded_key = quote(settings.V2X_API_KEY, safe='')
+        api_key = settings.V2X_API_KEY  
         page = request.query_params.get("pageNo", "1")
         rows = request.query_params.get("numOfRows", "10")
         itst_id = request.query_params.get("itstId")
 
         params = {
-            "apiKey": encoded_key,
+            "apikey": api_key,  
             "type": "json",
             "pageNo": page,
             "numOfRows": rows,
@@ -67,9 +67,12 @@ class V2XSignalTestView(APIView):
             params["itstId"] = itst_id
 
         try:
-            response = requests.get(base_url, params=params, timeout=5)
+            response = requests.get(base_url, params=params, timeout=10)
+            print("요청 URL:", response.request.url) 
             response.raise_for_status()
             return Response(response.json())
+        except requests.Timeout:
+            return Response({"error": "요청 시간이 초과되었습니다."}, status=504)
         except requests.RequestException as e:
             return Response({"error": "Failed to fetch V2X data", "details": str(e)}, status=500)
 
