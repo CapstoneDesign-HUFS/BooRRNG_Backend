@@ -67,7 +67,7 @@ class V2XSignalTestView(APIView):
             params["itstId"] = itst_id
 
         try:
-            response = requests.get(base_url, params=params, timeout=10)
+            response = requests.get(base_url, params=params, timeout=20)
             print("요청 URL:", response.request.url) 
             response.raise_for_status()
             return Response(response.json())
