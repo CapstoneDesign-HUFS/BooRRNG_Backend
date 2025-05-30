@@ -1,0 +1,1 @@
+print("Hello from PythonAnywhere Linux server! by chajuyoung(example2.py)")
