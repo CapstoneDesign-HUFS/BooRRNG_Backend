@@ -1,1 +1,1 @@
-print("Hello from PythonAnywhere Linux server! by chajuyoung(example2.py)")
+print("Hello from PythonAnywhere Linux server! by chajuyoung_example2.py")
