@@ -6,7 +6,8 @@ from .views import (
     TmapRouteView,
     SegmentedRouteView,
     TmapSegmentedRouteView,
-    SignalStatusView 
+    SignalStatusView,
+    RouteEstimatedTimeView,
 )
 
 urlpatterns = [
@@ -16,6 +17,6 @@ urlpatterns = [
     path('traffic-lights/tmap-route/', TmapRouteView.as_view(), name='tmap-route'),
     path('traffic-lights/segmented-route/', SegmentedRouteView.as_view(), name='segmented-route'),
     path('traffic-lights/tmap-segmented-route/', TmapSegmentedRouteView.as_view(), name='tmap-segmented-route'),
-    path('traffic-lights/signal-status/', SignalStatusView.as_view(), name='signal-status'),  # ← 이 줄 추가
+    path('traffic-lights/signal-status/', SignalStatusView.as_view(), name='signal-status'),
+    path('traffic-lights/estimated-time/', RouteEstimatedTimeView.as_view(), name='estimated-time'),
 ]
-
